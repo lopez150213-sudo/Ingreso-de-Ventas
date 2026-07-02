@@ -1,0 +1,74 @@
+/* Reemplazar completo o añadir al final */
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+body { background-color: #f4f6f9; color: #333; padding: 15px; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; }
+.logo-wrapper { text-align: center; margin-bottom: 15px; }
+.app-logo { max-width: 160px; height: auto; display: inline-block; }
+.logo-wrapper-app { margin-bottom: 5px; text-align: center; }
+.app-logo-small { max-width: 110px; height: auto; }
+.login-container, .app-container { background: #ffffff; width: 100%; max-width: 450px; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); margin-top: 10px; }
+.hidden { display: none !important; }
+.header-app { background-color: #f19f13; color: white; padding: 12px; border-radius: 6px; text-align: center; font-weight: bold; margin-bottom: 15px; }
+h2 { text-align: center; margin-bottom: 20px; color: #2c3e50; font-size: 20px; border-top: 1px solid #eee; padding-top: 15px; }
+
+/* NUEVO CONTENEDOR DE ARQUEO EN DOS COLUMNAS */
+.arqueo-container {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+.arqueo-block {
+    flex: 1;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 10px;
+}
+.arqueo-block h3 {
+    font-size: 13px;
+    color: #475569;
+    text-align: center;
+    margin-bottom: 8px;
+    border-bottom: 1px solid #cbd5e1;
+    padding-bottom: 4px;
+    text-transform: uppercase;
+}
+.arqueo-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    margin-bottom: 4px;
+    color: #334155;
+}
+.total-highlight {
+    margin-top: 6px;
+    padding-top: 4px;
+    border-top: 1px dashed #cbd5e1;
+    font-weight: bold;
+    color: #f19f13; /* Color de tu empresa */
+}
+
+/* COMPONENTES DE FORMULARIO */
+.input-group { margin-bottom: 18px; display: flex; flex-direction: column; }
+.input-group label { font-size: 14px; font-weight: 600; margin-bottom: 6px; color: #4b5563; }
+.input-group input { padding: 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 15px; outline: none; background-color: #fff; }
+.input-group input:focus { border-color: #f19f13; box-shadow: 0 0 0 3px rgba(241, 159, 19, 0.15); }
+.input-error { border: 2px solid #ff4d4d !important; background-color: #fff2f2 !important; }
+.error-text { color: #ff4d4d; font-size: 12px; margin-top: 5px; font-weight: bold; }
+.app-message { padding: 12px; margin-bottom: 20px; border-radius: 6px; font-weight: bold; text-align: center; font-size: 14px; }
+.app-message.error { background: #ffdddd; color: #d93838; border: 1px solid #ff8888; }
+.app-message.success { background: #ddffdd; color: #287328; border: 1px solid #88ff88; }
+.checkbox-container { display: flex; align-items: center; gap: 8px; margin-top: 10px; font-size: 13px; font-weight: bold; color: #555; cursor: pointer; }
+.checkbox-container input { width: 16px; height: 16px; cursor: pointer; }
+.geo-box { background: #f8fafc; border: 1px dashed #cbd5e1; padding: 15px; border-radius: 8px; margin-bottom: 22px; text-align: center; }
+.btn-geo { background: #3498db; color: white; border: none; padding: 11px 15px; border-radius: 6px; font-weight: bold; cursor: pointer; width: 100%; font-size: 14px; }
+.btn-geo:hover { background: #2980b9; }
+.geo-indicator { margin-top: 10px; font-size: 13px; font-weight: bold; color: #7f8c8d; }
+.geo-indicator.success { color: #27ae60; }
+.geo-indicator.alert { color: #c0392b; }
+.btn-submit { background-color: #f19f13; color: white; border: none; padding: 14px; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; width: 100%; transition: background 0.2s, transform 0.1s; }
+.btn-submit:hover { background-color: #d8890e; }
+.btn-submit:active { transform: scale(0.98); }
+.btn-submit:disabled { background-color: #bdc3c7; cursor: not-allowed; }
+.loading-container { text-align: center; margin: 20px 0 10px 0; font-weight: bold; color: #333; font-size: 14px; }
+.progress-bar { width: 100%; background-color: #e0e0e0; border: 2px solid #333; height: 26px; border-radius: 15px; overflow: hidden; margin-top: 8px; }
+.progress-fill { width: 0%; height: 100%; background: linear-gradient(90deg, #2ecc71, #27ae60); transition: width 0.3s ease; }

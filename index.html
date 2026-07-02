@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Clientes - Telecable</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- 1. PANTALLA DE INICIO DE SESIÓN -->
+    <div id="login-screen" class="login-container">
+        <div class="login-box">
+            <div class="logo-wrapper">
+                <img src="logo.png" alt="Telecable Logo" class="app-logo">
+            </div>
+            <h2>TeleCable</h2>
+            <p>Acceso para Ventas y Cobros</p>
+            <div class="input-group">
+                <label for="username">Usuario</label>
+                <input type="text" id="username" placeholder="ej: fcuevas">
+            </div>
+            <div class="input-group">
+                <label for="password">Contraseña</label>
+                <input type="password" id="password" placeholder="••••••••">
+            </div>
+            <button onclick="login()" class="btn-submit">Ingresar al Sistema</button>
+        </div>
+    </div>
+
+    <!-- 2. PANTALLA PRINCIPAL DE LA APP -->
+    <div id="app-screen" class="app-container hidden">
+        <div class="header-app">
+            <div class="logo-wrapper-app">
+                <img src="logo.png" alt="Telecable Logo" class="app-logo-small">
+            </div>
+            <span id="vendedor-tag">Vendedor: ---</span>
+        </div>
+
+        <!-- BLOQUE ESTÁTICO: ARQUEO Y COMISIONES EN TIEMPO REAL -->
+        <div class="arqueo-container">
+            <div class="arqueo-block project-finances">
+                <h3>Comisiones</h3>
+                <div class="arqueo-row"><span>Totales:</span> <strong id="arq-subtotal">C$0.00</strong></div>
+                <div class="arqueo-row"><span>Deducción 3%:</span> <strong id="arq-deduccion">C$0.00</strong></div>
+                <div class="arqueo-row total-highlight"><span>Neto Recibir:</span> <strong id="arq-neto">C$0.00</strong></div>
+            </div>
+            <div class="arqueo-block project-status">
+                <h3>Resumen Contratos</h3>
+                <div class="arqueo-row"><span>Cliente Neto:</span> <strong id="arq-cneto">0</strong></div>
+                <div class="arqueo-row"><span>Adenda:</span> <strong id="arq-adenda">0</strong></div>
+                <div class="arqueo-row total-highlight"><span>Total Ventas:</span> <strong id="arq-total">0</strong></div>
+            </div>
+        </div>
+        
+        <h2>Registro de Clientes</h2>
+        <div id="app-message" class="app-message hidden"></div>
+
+        <form id="form-venta" onsubmit="event.preventDefault(); prepararEnvio();">
+            <div class="input-group">
+                <label for="contrato">Contrato *</label>
+                <input type="text" id="contrato" placeholder="Ej: 121212" oninput="validarContrato(this)">
+                <small id="contrato-error" class="error-text hidden">¡Faltan dígitos! Deben ser exactamente 6 números.</small>
+            </div>
+
+            <div class="input-group">
+                <label for="cliente">Nombre del Cliente *</label>
+                <input type="text" id="cliente" placeholder="Nombre Completo">
+            </div>
+
+            <div class="input-group">
+                <label for="sector">Sector / Barrio *</label>
+                <input type="text" id="sector" list="lista-sectores" placeholder="Escribe para buscar sector...">
+                <datalist id="lista-sectores"></datalist>
+            </div>
+
+            <div class="input-group">
+                <label for="servicio">Servicio / Paquete *</label>
+                <input type="text" id="servicio" list="lista-servicios" placeholder="Escribe para buscar paquete...">
+                <datalist id="lista-servicios"></datalist>
+            </div>
+
+            <div class="input-group">
+                <label for="nap">Código NAP *</label>
+                <input type="text" id="nap" placeholder="Ej: NAP-01-A">
+                <label class="checkbox-container">
+                    <input type="checkbox" id="nap-unmarked" onchange="toggleNap(this)"> NAP SIN ROTULAR
+                </label>
+            </div>
+
+            <div class="geo-box">
+                <button type="button" class="btn-geo" onclick="obtenerUbicacion()">📍 Capturar Geoposición</button>
+                <div id="geo-status" class="geo-indicator alert">Ubicación obligatoria: No capturada aún</div>
+            </div>
+
+            <button type="submit" id="btn-entregar" class="btn-submit">Ingresar Venta</button>
+        </form>
+
+        <div id="loading-container" class="loading-container hidden">
+            <p>LOADING....</p>
+            <div class="progress-bar">
+                <div id="progress-fill" class="progress-fill"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
