@@ -8,7 +8,6 @@
 </head>
 <body>
 
-    <!-- 1. INICIO DE SESIÓN -->
     <div id="login-screen" class="login-container">
         <div class="login-box">
             <div class="logo-wrapper">
@@ -28,7 +27,6 @@
         </div>
     </div>
 
-    <!-- 2. PANTALLA PRINCIPAL DE LA APP -->
     <div id="app-screen" class="app-container hidden">
         <div class="header-app">
             <div class="logo-wrapper-app">
@@ -37,7 +35,6 @@
             <span id="vendedor-tag">Vendedor: ---</span>
         </div>
 
-        <!-- BLOQUE ESTÁTICO: ARQUEO Y COMISIONES EN TIEMPO REAL -->
         <div class="arqueo-container">
             <div class="arqueo-block project-finances">
                 <h3>Comisiones</h3>
@@ -50,6 +47,30 @@
                 <div class="arqueo-row"><span>Cliente Neto:</span> <strong id="arq-cneto">0</strong></div>
                 <div class="arqueo-row"><span>Adenda:</span> <strong id="arq-adenda">0</strong></div>
                 <div class="arqueo-row total-highlight"><span>Total Ventas:</span> <strong id="arq-total">0</strong></div>
+            </div>
+        </div>
+
+        <button id="btn-toggle-clientes" type="button" class="btn-desplegable" onclick="toggleTablaClientes()">
+            📋 Ver mis clientes ingresados <span id="toggle-icon">⯆</span>
+        </button>
+
+        <div id="contenedor-tabla-clientes" class="tabla-desplegable-container hidden">
+            <div class="table-wrapper">
+                <table class="tabla-clientes">
+                    <thead>
+                        <tr>
+                            <th>CONTRATO</th>
+                            <th>CLIENTE</th>
+                            <th>SECTOR</th>
+                            <th>SERVICIO</th>
+                        </tr>
+                    </thead>
+                    <tbody id="body-tabla-clientes">
+                        <tr>
+                            <td colspan="4" class="sin-registros">Sin ventas ingresadas aún</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
         

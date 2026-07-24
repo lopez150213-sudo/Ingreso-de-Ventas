@@ -1,5 +1,5 @@
 // Asegúrate de colocar tu URL larga generada por Google Apps Script
-const URL_API = "https://script.google.com/macros/s/AKfycbzUsTm6zWx8dY22GSrv0jdzehKepXvbk4DHUABlGu7R8D82Rf7dtDomldAAYklx7Uu6/exec";
+const URL_API = "https://script.google.com/macros/s/AKfycbwHOXKG-_hMSM9Rai_XfxGoRo1UR7gWKQ6rd1gE43J_J2fk74SIAnZ8WlmO6a-e_edp/exec";
 
 const MAESTRO_SERVICIOS = ["Cable Basico", "Combo 150 Mbps", "Combo 180 Mbps", "Combo 220 Mbps", "Combo 300 Mbps", "Internet 150 Mbps", "Internet 180 Mbps", "Internet 220 Mbps", "Internet 300 Mbps"];
 const MAESTRO_SECTORES = ["El Pochote", "Reparto Camilo Ortega", "Calle Nueva", "El Escudo", "Reparto Rosario", "El Madroño", "Sector Pila de Agua", "Nueva Esperanza", "Reparto San Carlos", "Adelita No 1", "Adelita No 2", "Posintepe", "Pantanal", "Praderas del mombacho", "El Resbalon", "Calle Palmira", "Santa Isabel", "La Sabaneta", "La Bolsa", "Boca Negra", "El almendro", "Reparto Guzman", "El Hormiguero", "el Consulado", "Calle Real Xalteva", "Pueblo Chiquito", "Sector Monisa", "Villa Nuevo Amanecer", "La Otra banda", "La Islita", "Calle Atravezada", "Silvio Ruiz", "Santa Lucia", "17 de Julio", "El Arsenal", "Brisas del Lago", "Jose Antonio Urbina", "La Merced", "El Ganado", "Calle Corrales", "Calle la Libertad", "Juan de Dios", "Calle el caimito", "Cuiscoma", "Loma Del Mico", "Calle San Juan del Sur", "Santa Rosa", "Solidaridad", "Villa Progreso", "La Calzada", "El Leonora", "Maria Elena Asunsin", "Villa Esperanza", "Fortin", "Villa Sonja", "Cleto Ordoñez", "Domingazo", "Pancasan", "Villa Sultana", "Calle la Inmaculada", "Hermita del Socorro", "Julian Quintana", "La Estacion", "Bartolome No 1", "Bartolome No 2", "La Loquera", "Emer Gomez", "Calle la Ceiba", "Avenida Arellano", "Rpto Arcos de Granada", "Campo de Aterrizaje", "San Matias", "El tamarindo", "Sector la Polvora", "Las Camelias", "El Bolson", "Calle el Cementerio", "Bismarck Martinez", "Silvia Ferrufino", "Manuel Montiel", "EL DIAMANTE", "CHILAMATES", "SAN BLASS", "El Hormigon", "Prusias", "DULCE NIÑO", "Capulin", "Hossana", "Anexo Hossana", "EL Coyol", "Villa Walter Ferreti", "Villa tepetate Sur", "Villa Cocibolca", "Mira Lagos", "Villa Sandino", "Santa Emilia", "Villa tepetate Norte", "CAMINO DE LAS DILIGENCIA", "LOS ORTIZ", "El astillero"];
@@ -35,7 +35,20 @@ function login() {
     }
 }
 
-// Actualizar visualmente el cuadro de arqueo
+// Alternar visualización de la tabla de clientes
+function toggleTablaClientes() {
+    const contenedor = document.getElementById("contenedor-tabla-clientes");
+    const icono = document.getElementById("toggle-icon");
+    if (contenedor.classList.contains("hidden")) {
+        contenedor.classList.remove("hidden");
+        icono.innerText = "⯅";
+    } else {
+        contenedor.classList.add("hidden");
+        icono.innerText = "⯆";
+    }
+}
+
+// Actualizar visualmente el cuadro de arqueo y la tabla de clientes
 function actualizarInterfazArqueo(data) {
     document.getElementById("arq-subtotal").innerText = data.subtotal;
     document.getElementById("arq-deduccion").innerText = data.deduccion;
@@ -43,6 +56,25 @@ function actualizarInterfazArqueo(data) {
     document.getElementById("arq-cneto").innerText = data.clienteNeto;
     document.getElementById("arq-adenda").innerText = data.adenda;
     document.getElementById("arq-total").innerText = data.total;
+
+    // Cargar clientes en la tabla
+    const tbody = document.getElementById("body-tabla-clientes");
+    tbody.innerHTML = "";
+
+    if (data.ventas && data.ventas.length > 0) {
+        data.ventas.forEach(v => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td><strong>${v.contrato}</strong></td>
+                <td>${v.cliente}</td>
+                <td>${v.sector}</td>
+                <td>${v.servicio}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    } else {
+        tbody.innerHTML = '<tr><td colspan="4" class="sin-registros">Sin ventas ingresadas aún</td></tr>';
+    }
 }
 
 function consultarArqueoServidor(vendedor) {
