@@ -1,4 +1,4 @@
-const URL_API = "https://script.google.com/macros/s/AKfycbyJ9Y_KgANpl6mWoRd5JAccyfZUhl1-TdpT9tzqtuwLLFcJMi5MYY0pbm9I3e24P8q0/exec";
+const URL_API = "https://script.google.com/macros/s/AKfycbzgTQAGrtOhAhlQIGEMAd7o8ARF8CNTjEeFedZZu098vKkNL1N_Zyir_pcyk4_P6Hsm/exec";
 
 const MAESTRO_SERVICIOS = ["Cable Basico", "Combo 150 Mbps", "Combo 180 Mbps", "Combo 220 Mbps", "Combo 300 Mbps", "Internet 150 Mbps", "Internet 180 Mbps", "Internet 220 Mbps", "Internet 300 Mbps"];
 const MAESTRO_SECTORES = ["El Pochote", "Reparto Camilo Ortega", "Calle Nueva", "El Escudo", "Reparto Rosario", "El Madroño", "Sector Pila de Agua", "Nueva Esperanza", "Reparto San Carlos", "Adelita No 1", "Adelita No 2", "Posintepe", "Pantanal", "Praderas del mombacho", "El Resbalon", "Calle Palmira", "Santa Isabel", "La Sabaneta", "La Bolsa", "Boca Negra", "El almendro", "Reparto Guzman", "El Hormiguero", "el Consulado", "Calle Real Xalteva", "Pueblo Chiquito", "Sector Monisa", "Villa Nuevo Amanecer", "La Otra banda", "La Islita", "Calle Atravezada", "Silvio Ruiz", "Santa Lucia", "17 de Julio", "El Arsenal", "Brisas del Lago", "Jose Antonio Urbina", "La Merced", "El Ganado", "Calle Corrales", "Calle la Libertad", "Juan de Dios", "Calle el caimito", "Cuiscoma", "Loma Del Mico", "Calle San Juan del Sur", "Santa Rosa", "Solidaridad", "Villa Progreso", "La Calzada", "El Leonora", "Maria Elena Asunsin", "Villa Esperanza", "Fortin", "Villa Sonja", "Cleto Ordoñez", "Domingazo", "Pancasan", "Villa Sultana", "Calle la Inmaculada", "Hermita del Socorro", "Julian Quintana", "La Estacion", "Bartolome No 1", "Bartolome No 2", "La Loquera", "Emer Gomez", "Calle la Ceiba", "Avenida Arellano", "Rpto Arcos de Granada", "Campo de Aterrizaje", "San Matias", "El tamarindo", "Sector la Polvora", "Las Camelias", "El Bolson", "Calle el Cementerio", "Bismarck Martinez", "Silvia Ferrufino", "Manuel Montiel", "EL DIAMANTE", "CHILAMATES", "SAN BLASS", "El Hormigon", "Prusias", "DULCE NIÑO", "Capulin", "Hossana", "Anexo Hossana", "EL Coyol", "Villa Walter Ferreti", "Villa tepetate Sur", "Villa Cocibolca", "Mira Lagos", "Villa Sandino", "Santa Emilia", "Villa tepetate Norte", "CAMINO DE LAS DILIGENCIA", "LOS ORTIZ", "El astillero"];
@@ -30,6 +30,7 @@ function login() {
         document.getElementById("vendedor-tag").innerText = "Vendedor: " + usuarioLogueado;
         document.getElementById("login-screen").classList.add("hidden");
         document.getElementById("app-screen").classList.remove("hidden");
+        // Consulta los datos del servidor inmediatamente al iniciar sesión
         consultarArqueoServidor(usuarioLogueado);
     } else {
         alert("Usuario o contraseña incorrectos.");
@@ -49,29 +50,37 @@ function toggleTablaClientes() {
 }
 
 function actualizarInterfazArqueo(data) {
-    document.getElementById("arq-subtotal").innerText = data.subtotal;
-    document.getElementById("arq-deduccion").innerText = data.deduccion;
-    document.getElementById("arq-neto").innerText = data.neto;
-    document.getElementById("arq-cneto").innerText = data.clienteNeto;
-    document.getElementById("arq-adenda").innerText = data.adenda;
-    document.getElementById("arq-total").innerText = data.total;
+    if (!data) return;
 
+    // Actualiza sección de Comisiones
+    if (document.getElementById("arq-subtotal")) document.getElementById("arq-subtotal").innerText = data.subtotal !== undefined ? data.subtotal : 0;
+    if (document.getElementById("arq-deduccion")) document.getElementById("arq-deduccion").innerText = data.deduccion !== undefined ? data.deduccion : 0;
+    if (document.getElementById("arq-neto")) document.getElementById("arq-neto").innerText = data.neto !== undefined ? data.neto : 0;
+
+    // Actualiza sección de Resumen de Contratos (L20, L21, L22)
+    if (document.getElementById("arq-cneto")) document.getElementById("arq-cneto").innerText = data.clienteNeto !== undefined ? data.clienteNeto : 0;
+    if (document.getElementById("arq-adenda")) document.getElementById("arq-adenda").innerText = data.adenda !== undefined ? data.adenda : 0;
+    if (document.getElementById("arq-total")) document.getElementById("arq-total").innerText = data.total !== undefined ? data.total : 0;
+
+    // Renderiza la tabla con los clientes ingresados
     const tbody = document.getElementById("body-tabla-clientes");
-    tbody.innerHTML = "";
+    if (tbody) {
+        tbody.innerHTML = "";
 
-    if (data.ventas && data.ventas.length > 0) {
-        data.ventas.forEach(v => {
-            const tr = document.createElement("tr");
-            tr.innerHTML = `
-                <td><strong>${v.contrato}</strong></td>
-                <td>${v.cliente}</td>
-                <td>${v.sector}</td>
-                <td>${v.servicio}</td>
-            `;
-            tbody.appendChild(tr);
-        });
-    } else {
-        tbody.innerHTML = '<tr><td colspan="4" class="sin-registros">Sin ventas ingresadas aún</td></tr>';
+        if (data.ventas && data.ventas.length > 0) {
+            data.ventas.forEach(v => {
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+                    <td><strong>${v.contrato}</strong></td>
+                    <td>${v.cliente}</td>
+                    <td>${v.sector}</td>
+                    <td>${v.servicio}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        } else {
+            tbody.innerHTML = '<tr><td colspan="4" class="sin-registros">Sin ventas ingresadas aún</td></tr>';
+        }
     }
 }
 
@@ -79,9 +88,9 @@ function consultarArqueoServidor(vendedor) {
     fetch(`${URL_API}?vendedor=${vendedor}`)
     .then(res => res.json())
     .then(resJson => {
-        if (resJson.status === "success") {
-            actualizarInterfazArqueo(resJson.data);
-        }
+        // Soporta respuesta envuelta en .data o directa
+        const datosArqueo = resJson.data ? resJson.data : resJson;
+        actualizarInterfazArqueo(datosArqueo);
     }).catch(e => console.log("Error cargando arqueo estático inicial:", e));
 }
 
@@ -134,7 +143,6 @@ async function procesarFotoContrato(input) {
         const base64 = await convertirBase64(archivo);
         const base64Clean = base64.split(',')[1];
 
-        // Se envía la imagen al backend en Google Apps Script para ser procesada
         const payload = {
             accion: "procesar_ia",
             imagenBase64: base64Clean,
