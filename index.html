@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -77,6 +78,15 @@
         <h2>Registro de Clientes</h2>
         <div id="app-message" class="app-message hidden"></div>
 
+        <!-- MÓDULO DE ESCÁNER DE IA -->
+        <div class="ia-box">
+            <button type="button" class="btn-ia" onclick="document.getElementById('input-foto-contrato').click()">
+                ✨ Escanear Contrato con IA
+            </button>
+            <input type="file" id="input-foto-contrato" accept="image/*" capture="environment" class="hidden" onchange="procesarFotoContrato(this)">
+            <div id="ia-status" class="ia-indicator hidden">Procesando documento con Gemini...</div>
+        </div>
+
         <form id="form-venta" onsubmit="event.preventDefault(); prepararEnvio();">
             <div class="input-group">
                 <label for="contrato">Contrato *</label>
@@ -87,6 +97,11 @@
             <div class="input-group">
                 <label for="cliente">Nombre del Cliente *</label>
                 <input type="text" id="cliente" placeholder="Nombre Completo">
+            </div>
+
+            <div class="input-group">
+                <label for="telefono">Número de Teléfono *</label>
+                <input type="tel" id="telefono" placeholder="Ej: 88888888">
             </div>
 
             <div class="input-group">

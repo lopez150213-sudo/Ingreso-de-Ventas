@@ -143,3 +143,37 @@ h2 { text-align: center; margin-bottom: 20px; color: #2c3e50; font-size: 20px; b
 .loading-container { text-align: center; margin: 20px 0 10px 0; font-weight: bold; color: #333; font-size: 14px; }
 .progress-bar { width: 100%; background-color: #e0e0e0; border: 2px solid #333; height: 26px; border-radius: 15px; overflow: hidden; margin-top: 8px; }
 .progress-fill { width: 0%; height: 100%; background: linear-gradient(90deg, #2ecc71, #27ae60); transition: width 0.3s ease; }
+
+/* ESTILOS MÓDULO IA GEMINI */
+.ia-box {
+    background: #f0f4ff;
+    border: 1px dashed #6366f1;
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 18px;
+    text-align: center;
+}
+
+.btn-ia {
+    background: linear-gradient(135deg, #6366f1, #a855f7);
+    color: white;
+    border: none;
+    padding: 12px 15px;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    width: 100%;
+    font-size: 14px;
+    transition: opacity 0.2s;
+}
+
+.btn-ia:hover {
+    opacity: 0.9;
+}
+
+.ia-indicator {
+    margin-top: 8px;
+    font-size: 12px;
+    font-weight: bold;
+    color: #4f46e5;
+}

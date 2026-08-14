@@ -1,5 +1,5 @@
-// Asegúrate de colocar tu URL larga generada por Google Apps Script
-const URL_API = "https://script.google.com/macros/s/AKfycbwHOXKG-_hMSM9Rai_XfxGoRo1UR7gWKQ6rd1gE43J_J2fk74SIAnZ8WlmO6a-e_edp/exec";
+const URL_API = "https://script.google.com/macros/s/AKfycbz8h5KUnxJ_GLJHTNFjv2yjYgW40tHvJy92Z7BWl72_4ZtxgyVrfBJx_OybXk2l3DCt/exec";
+const GEMINI_API_KEY = "AQ.Ab8RN6KaCjWkXAZ6qJ76TJ5xPTdP9-fQkLdbgIlzjL6jezjj6Q"; // 👈 Tu API key de Gemini aquí
 
 const MAESTRO_SERVICIOS = ["Cable Basico", "Combo 150 Mbps", "Combo 180 Mbps", "Combo 220 Mbps", "Combo 300 Mbps", "Internet 150 Mbps", "Internet 180 Mbps", "Internet 220 Mbps", "Internet 300 Mbps"];
 const MAESTRO_SECTORES = ["El Pochote", "Reparto Camilo Ortega", "Calle Nueva", "El Escudo", "Reparto Rosario", "El Madroño", "Sector Pila de Agua", "Nueva Esperanza", "Reparto San Carlos", "Adelita No 1", "Adelita No 2", "Posintepe", "Pantanal", "Praderas del mombacho", "El Resbalon", "Calle Palmira", "Santa Isabel", "La Sabaneta", "La Bolsa", "Boca Negra", "El almendro", "Reparto Guzman", "El Hormiguero", "el Consulado", "Calle Real Xalteva", "Pueblo Chiquito", "Sector Monisa", "Villa Nuevo Amanecer", "La Otra banda", "La Islita", "Calle Atravezada", "Silvio Ruiz", "Santa Lucia", "17 de Julio", "El Arsenal", "Brisas del Lago", "Jose Antonio Urbina", "La Merced", "El Ganado", "Calle Corrales", "Calle la Libertad", "Juan de Dios", "Calle el caimito", "Cuiscoma", "Loma Del Mico", "Calle San Juan del Sur", "Santa Rosa", "Solidaridad", "Villa Progreso", "La Calzada", "El Leonora", "Maria Elena Asunsin", "Villa Esperanza", "Fortin", "Villa Sonja", "Cleto Ordoñez", "Domingazo", "Pancasan", "Villa Sultana", "Calle la Inmaculada", "Hermita del Socorro", "Julian Quintana", "La Estacion", "Bartolome No 1", "Bartolome No 2", "La Loquera", "Emer Gomez", "Calle la Ceiba", "Avenida Arellano", "Rpto Arcos de Granada", "Campo de Aterrizaje", "San Matias", "El tamarindo", "Sector la Polvora", "Las Camelias", "El Bolson", "Calle el Cementerio", "Bismarck Martinez", "Silvia Ferrufino", "Manuel Montiel", "EL DIAMANTE", "CHILAMATES", "SAN BLASS", "El Hormigon", "Prusias", "DULCE NIÑO", "Capulin", "Hossana", "Anexo Hossana", "EL Coyol", "Villa Walter Ferreti", "Villa tepetate Sur", "Villa Cocibolca", "Mira Lagos", "Villa Sandino", "Santa Emilia", "Villa tepetate Norte", "CAMINO DE LAS DILIGENCIA", "LOS ORTIZ", "El astillero"];
@@ -27,15 +27,12 @@ function login() {
         document.getElementById("vendedor-tag").innerText = "Vendedor: " + usuarioLogueado;
         document.getElementById("login-screen").classList.add("hidden");
         document.getElementById("app-screen").classList.remove("hidden");
-        
-        // Cargar los valores del arqueo inmediatamente al entrar
         consultarArqueoServidor(usuarioLogueado);
     } else {
         alert("Usuario o contraseña incorrectos.");
     }
 }
 
-// Alternar visualización de la tabla de clientes
 function toggleTablaClientes() {
     const contenedor = document.getElementById("contenedor-tabla-clientes");
     const icono = document.getElementById("toggle-icon");
@@ -48,7 +45,6 @@ function toggleTablaClientes() {
     }
 }
 
-// Actualizar visualmente el cuadro de arqueo y la tabla de clientes
 function actualizarInterfazArqueo(data) {
     document.getElementById("arq-subtotal").innerText = data.subtotal;
     document.getElementById("arq-deduccion").innerText = data.deduccion;
@@ -57,7 +53,6 @@ function actualizarInterfazArqueo(data) {
     document.getElementById("arq-adenda").innerText = data.adenda;
     document.getElementById("arq-total").innerText = data.total;
 
-    // Cargar clientes en la tabla
     const tbody = document.getElementById("body-tabla-clientes");
     tbody.innerHTML = "";
 
@@ -124,16 +119,117 @@ function mostrarMensajeApp(texto, tipo) {
     msgBox.classList.remove("hidden"); window.scrollTo(0, 0); 
 }
 
+/* --- EXTRACCIÓN CON GEMINI 1.5 FLASH (CORREGIDO) --- */
+async function procesarFotoContrato(input) {
+    if (!input.files || !input.files[0]) return;
+    const archivo = input.files[0];
+    const statusIa = document.getElementById("ia-status");
+    statusIa.classList.remove("hidden");
+    statusIa.innerText = "⏳ Leyendo documento con Gemini...";
+
+    try {
+        const base64 = await convertirBase64(archivo);
+        const base64Clean = base64.split(',')[1];
+
+        const promptText = `Analiza este contrato/ficha de venta y extrae la información en JSON estricto.
+Sectores válidos: ${JSON.stringify(MAESTRO_SECTORES)}
+Servicios válidos: ${JSON.stringify(MAESTRO_SERVICIOS)}
+
+Formatos requeridos:
+- contrato: exactamente 6 dígitos numéricos.
+- cliente: Nombre completo.
+- telefono: número de 8 dígitos.
+- sector: Debe coincidir exactamente con una de las opciones de Sectores válidos.
+- servicio: Debe coincidir exactamente con una de las opciones de Servicios válidos.
+- nap: código del tap/nap o "NAP SIN ROTULAR".`;
+
+        const payloadGemini = {
+            contents: [{
+                parts: [
+                    { text: promptText },
+                    { inlineData: { mimeType: archivo.type, data: base64Clean } }
+                ]
+            }],
+            generationConfig: {
+                responseMimeType: "application/json",
+                responseSchema: {
+                    type: "OBJECT",
+                    properties: {
+                        contrato: { type: "STRING" },
+                        cliente: { type: "STRING" },
+                        telefono: { type: "STRING" },
+                        sector: { type: "STRING" },
+                        servicio: { type: "STRING" },
+                        nap: { type: "STRING" }
+                    },
+                    required: ["contrato", "cliente"]
+                }
+            }
+        };
+
+        // Se usa gemini-1.5-flash
+        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payloadGemini)
+        });
+
+        if (!res.ok) {
+            const errorData = await res.json().catch(() => ({}));
+            throw new Error(`Error en la API (${res.status}): ${errorData.error?.message || res.statusText}`);
+        }
+
+        const resultJson = await res.json();
+
+        // Validar respuesta estructurada
+        if (!resultJson.candidates || !resultJson.candidates[0]?.content?.parts[0]?.text) {
+            throw new Error("Respuesta de la API no válida.");
+        }
+
+        const rawText = resultJson.candidates[0].content.parts[0].text;
+        const datos = JSON.parse(rawText);
+
+        if (datos.contrato) document.getElementById("contrato").value = datos.contrato;
+        if (datos.cliente) document.getElementById("cliente").value = datos.cliente;
+        if (datos.telefono) document.getElementById("telefono").value = datos.telefono;
+        if (datos.sector) document.getElementById("sector").value = datos.sector;
+        if (datos.servicio) document.getElementById("servicio").value = datos.servicio;
+        if (datos.nap) {
+            if (datos.nap.toUpperCase() === "NAP SIN ROTULAR") {
+                document.getElementById("nap-unmarked").checked = true;
+                toggleNap(document.getElementById("nap-unmarked"));
+            } else {
+                document.getElementById("nap").value = datos.nap;
+            }
+        }
+
+        statusIa.innerText = "✅ Datos extraídos con éxito";
+    } catch (err) {
+        console.error("Error al procesar con Gemini:", err);
+        statusIa.innerText = "❌ No se pudo leer el documento";
+    }
+}
+
+function convertirBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
+}
+
 function prepararEnvio() {
     const contrato = document.getElementById("contrato").value.trim();
     const cliente = document.getElementById("cliente").value.trim();
+    const telefono = document.getElementById("telefono").value.trim();
     const sector = document.getElementById("sector").value.trim();
     const servicio = document.getElementById("servicio").value.trim();
     const nap = document.getElementById("nap").value.trim();
     
     document.getElementById("app-message").classList.add("hidden");
 
-    if (!contrato || !cliente || !sector || !servicio || !nap) { mostrarMensajeApp("⚠️ Todos los campos con (*) son obligatorios.", "error"); return; }
+    if (!contrato || !cliente || !telefono || !sector || !servicio || !nap) { mostrarMensajeApp("⚠️ Todos los campos con (*) son obligatorios.", "error"); return; }
     if (contrato.length !== 6) { mostrarMensajeApp("⚠️ El contrato debe tener 6 dígitos.", "error"); return; }
     if (!MAESTRO_SECTORES.some(s => s.toLowerCase() === sector.toLowerCase())) { mostrarMensajeApp("⚠️ Sector no válido.", "error"); return; }
     if (!MAESTRO_SERVICIOS.some(s => s.toLowerCase() === servicio.toLowerCase())) { mostrarMensajeApp("⚠️ Paquete no válido.", "error"); return; }
@@ -146,9 +242,8 @@ function prepararEnvio() {
     btnSubmit.disabled = true; loadBox.classList.remove("hidden"); fill.style.width = "0%";
     setTimeout(() => { fill.style.width = "40%"; }, 150);
 
-    const payload = { vendedor: usuarioLogueado, contrato, cliente, sector, servicio, nap, latitud: coordenadas.latitud, longitud: coordenadas.longitud };
+    const payload = { vendedor: usuarioLogueado, contrato, cliente, telefono, sector, servicio, nap, latitud: coordenadas.latitud, longitud: coordenadas.longitud };
 
-    // Enviar y esperar respuesta con los datos de arqueo calculados tras la venta
     fetch(URL_API, {
         method: "POST",
         body: JSON.stringify(payload)
@@ -169,7 +264,6 @@ function prepararEnvio() {
     })
     .catch(err => {
         loadBox.classList.add("hidden"); btnSubmit.disabled = false;
-        // Si cae en no-cors pero guarda, refrescar datos manualmente
         mostrarMensajeApp("🎉 Registro enviado con éxito.", "success");
         consultarArqueoServidor(usuarioLogueado);
         limpiarFormulario();
@@ -178,9 +272,11 @@ function prepararEnvio() {
 
 function limpiarFormulario() {
     document.getElementById("contrato").value = ""; document.getElementById("cliente").value = "";
-    document.getElementById("sector").value = ""; document.getElementById("servicio").value = "";
-    document.getElementById("nap").value = ""; document.getElementById("nap-unmarked").checked = false;
-    document.getElementById("nap").disabled = false; document.getElementById("geo-status").className = "geo-indicator alert";
+    document.getElementById("telefono").value = ""; document.getElementById("sector").value = ""; 
+    document.getElementById("servicio").value = ""; document.getElementById("nap").value = ""; 
+    document.getElementById("nap-unmarked").checked = false; document.getElementById("nap").disabled = false; 
+    document.getElementById("geo-status").className = "geo-indicator alert";
     document.getElementById("geo-status").innerText = "Ubicación obligatoria: No capturada aún";
+    document.getElementById("ia-status").classList.add("hidden");
     coordenadas = { latitud: "", longitud: "" };
 }
