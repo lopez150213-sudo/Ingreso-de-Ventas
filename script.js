@@ -52,17 +52,20 @@ function toggleTablaClientes() {
 function actualizarInterfazArqueo(data) {
     if (!data) return;
 
-    // Actualiza sección de Comisiones
-    if (document.getElementById("arq-subtotal")) document.getElementById("arq-subtotal").innerText = data.subtotal !== undefined ? data.subtotal : 0;
-    if (document.getElementById("arq-deduccion")) document.getElementById("arq-deduccion").innerText = data.deduccion !== undefined ? data.deduccion : 0;
-    if (document.getElementById("arq-neto")) document.getElementById("arq-neto").innerText = data.neto !== undefined ? data.neto : 0;
+    // Función auxiliar para formatear los números a Córdobas (C$)
+    const aCordobas = (val) => "C$ " + (val !== undefined ? Number(val).toLocaleString('es-NI', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "0.00");
 
-    // Actualiza sección de Resumen de Contratos (L20, L21, L22)
+    // 1. Actualiza sección de COMISIONES agregando C$
+    if (document.getElementById("arq-subtotal")) document.getElementById("arq-subtotal").innerText = aCordobas(data.subtotal);
+    if (document.getElementById("arq-deduccion")) document.getElementById("arq-deduccion").innerText = aCordobas(data.deduccion);
+    if (document.getElementById("arq-neto")) document.getElementById("arq-neto").innerText = aCordobas(data.neto);
+
+    // 2. Actualiza sección de RESUMEN DE CONTRATOS (estos son cantidades/conteo, por lo que van sin C$)
     if (document.getElementById("arq-cneto")) document.getElementById("arq-cneto").innerText = data.clienteNeto !== undefined ? data.clienteNeto : 0;
     if (document.getElementById("arq-adenda")) document.getElementById("arq-adenda").innerText = data.adenda !== undefined ? data.adenda : 0;
     if (document.getElementById("arq-total")) document.getElementById("arq-total").innerText = data.total !== undefined ? data.total : 0;
 
-    // Renderiza la tabla con los clientes ingresados
+    // 3. Renderiza la tabla con los clientes ingresados
     const tbody = document.getElementById("body-tabla-clientes");
     if (tbody) {
         tbody.innerHTML = "";
