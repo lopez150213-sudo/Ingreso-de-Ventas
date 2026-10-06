@@ -21,6 +21,14 @@ window.onload = function() {
     }
 };
 
+// Función auxiliar para determinar el saludo según la hora del día
+function obtenerSaludo() {
+    const hora = new Date().getHours();
+    if (hora >= 5 && hora < 12) return 'Buenos días';
+    if (hora >= 12 && hora < 18) return 'Buenas tardes';
+    return 'Buenas noches';
+}
+
 function login() {
     const userIn = document.getElementById("username").value.trim().toLowerCase();
     const passIn = document.getElementById("password").value.trim();
@@ -60,7 +68,7 @@ function actualizarInterfazArqueo(data) {
     if (document.getElementById("arq-deduccion")) document.getElementById("arq-deduccion").innerText = aCordobas(data.deduccion);
     if (document.getElementById("arq-neto")) document.getElementById("arq-neto").innerText = aCordobas(data.neto);
 
-    // 2. Actualiza sección de RESUMEN DE CONTRATOS (estos son cantidades/conteo, por lo que van sin C$)
+    // 2. Actualiza sección de RESUMEN DE CONTRATOS
     if (document.getElementById("arq-cneto")) document.getElementById("arq-cneto").innerText = data.clienteNeto !== undefined ? data.clienteNeto : 0;
     if (document.getElementById("arq-adenda")) document.getElementById("arq-adenda").innerText = data.adenda !== undefined ? data.adenda : 0;
     if (document.getElementById("arq-total")) document.getElementById("arq-total").innerText = data.total !== undefined ? data.total : 0;
@@ -91,7 +99,6 @@ function consultarArqueoServidor(vendedor) {
     fetch(`${URL_API}?vendedor=${vendedor}`)
     .then(res => res.json())
     .then(resJson => {
-        // Soporta respuesta envuelta en .data o directa
         const datosArqueo = resJson.data ? resJson.data : resJson;
         actualizarInterfazArqueo(datosArqueo);
     }).catch(e => console.log("Error cargando arqueo estático inicial:", e));
@@ -197,6 +204,44 @@ function convertirBase64(file) {
     });
 }
 
+function enviarWhatsAppBienvenida(cliente, telefono, contrato) {
+    // Formatear número de teléfono para Nicaragua (505)
+    let numLimpio = telefono.replace(/\D/g, '');
+    if (numLimpio.length === 8) {
+        numLimpio = '505' + numLimpio;
+    }
+
+    const saludo = obtenerSaludo();
+    const nombreFormateado = cliente ? `*${cliente}*` : 'estimado/a cliente';
+    const contratoFormateado = contrato ? `*${contrato}*` : 'N/A';
+
+    // Códigos Unicode con sintaxis correcta \u{XXXXX}
+    const emojiMano = "\u{1F44B}";         // 👋
+    const emojiCorazon = "\u{1F9E1}";      // 🧡
+    const emojiFiesta = "\u{1F389}";       // 🎉
+    const emojiNicaragua = "\u{1F1F3}\u{1F1EE}"; // 🇳🇮
+    const emojiReloj = "\u{23F1}\u{FE0F}"; // ⏱️
+    const emojiCalendario = "\u{1F4C5}";  // 📅
+    const emojiPin = "\u{1F4CD}";         // 📍
+    const emojiHerramienta = "\u{1F6E0}\u{FE0F}"; // 🛠️
+    const emojiTelefono = "\u{1F4DE}";    // 📞
+    const emojiDocumento = "\u{1F4DC}";   // 📜
+    const emojiChispas = "\u{2728}";      // ✨
+
+    const mensajeBienvenida = `${saludo}, ${nombreFormateado} ${emojiMano}\n\n` +
+      `¡Bienvenid@ a la *Familia Naranja* de *TELECABLE GRANADA*! ${emojiCorazon}${emojiFiesta} Nos alegra enormemente que formes parte de nosotros, porque en esta tierra ¡entre nicas nos conectamos! ${emojiNicaragua}\n\n` +
+      `A continuación, te compartimos la información importante sobre tu contrato N° ${contratoFormateado}:\n\n` +
+      `${emojiReloj} *Periodo de Instalación:*\nSu servicio será instalado en un lapso máximo de *72 horas hábiles*. Nuestro equipo técnico se pondrá en contacto previo a la visita.\n\n` +
+      `${emojiCalendario} *Fechas de Pago:*\nEl período de pago de su factura es del *1 al 10 de cada mes* para mantener su servicio activo y sin interrupciones.\n\n` +
+      `${emojiPin} *PUNTOS DE PAGO AUTORIZADOS:*\n• Airpack\n• Súper Express y AMPM\n• RapiBac y Agentes Banpro\n• Telepago BAC: 1800-1524\n• Pago en línea: https://pago.telecablegranada.com/\n• Sucursal TELECABLE Granada\n• Gestor de cobro asignado\n\n` +
+      `${emojiHerramienta} *Soporte Técnico y Atención al Cliente:*\nSi presenta alguna eventualidad con su servicio, puede reportarlo directamente a nuestras líneas de atención:\n${emojiTelefono} *7833-4590* / **2272*\n\n` +
+      `${emojiDocumento} *Términos y Condiciones:*\nAl contratar nuestro servicio, usted acepta los términos y condiciones operativos de la empresa.\n\n` +
+      `Agradecemos nuevamente su confianza en nosotros. ¡Es un orgullo conectarte con lo que más querés! ${emojiCorazon}${emojiChispas}`;
+
+    const urlWhatsApp = `https://api.whatsapp.com/send?phone=${numLimpio}&text=${encodeURIComponent(mensajeBienvenida)}`;
+    window.location.href = urlWhatsApp;
+}
+
 function prepararEnvio() {
     const contrato = document.getElementById("contrato").value.trim();
     const cliente = document.getElementById("cliente").value.trim();
@@ -232,9 +277,11 @@ function prepararEnvio() {
         setTimeout(() => {
             loadBox.classList.add("hidden"); btnSubmit.disabled = false;
             if(resJson.status === "success") {
-                mostrarMensajeApp("🎉 ¡Venta guardada y comisiones actualizadas con éxito!", "success");
+                mostrarMensajeApp("🎉 ¡Venta guardada con éxito! Redirigiendo a WhatsApp...", "success");
                 if (resJson.data) actualizarInterfazArqueo(resJson.data);
                 limpiarFormulario();
+                // Redirección inmediata a WhatsApp
+                enviarWhatsAppBienvenida(cliente, telefono, contrato);
             } else {
                 mostrarMensajeApp("❌ Error en servidor: " + resJson.message, "error");
             }
@@ -242,9 +289,11 @@ function prepararEnvio() {
     })
     .catch(err => {
         loadBox.classList.add("hidden"); btnSubmit.disabled = false;
-        mostrarMensajeApp("🎉 Registro enviado con éxito.", "success");
+        mostrarMensajeApp("🎉 Registro enviado con éxito. Redirigiendo a WhatsApp...", "success");
         consultarArqueoServidor(usuarioLogueado);
         limpiarFormulario();
+        // Redirección a WhatsApp en el respaldo catch
+        enviarWhatsAppBienvenida(cliente, telefono, contrato);
     });
 }
 
